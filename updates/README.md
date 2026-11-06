@@ -1,5 +1,5 @@
 # Joomla update feed
 
-`virtuemart.xml` is the feed registered by the installer. It lists only published releases. `virtuemart-1.0.0.xml` contains the entry prepared for the first release.
+`virtuemart.xml` is the feed registered by the installer. It lists only published releases.
 
-After the repository and release are public, download the release ZIP without authentication and check its SHA-256 against both the release checksum and the prepared entry. Replace the contents of `virtuemart.xml` with the verified entry and check that Joomla can fetch the feed.
+For each release, download the public ZIP without authentication and verify its SHA-256 before updating the feed. Update the version, download URL, release notes link and checksum together. Fetch the feed without authentication after pushing and check that its download URL returns the same ZIP.
