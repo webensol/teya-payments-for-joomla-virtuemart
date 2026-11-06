@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="4.0" type="plugin" group="vmpayment" method="upgrade">
+    <name>Teya Payments - VirtueMart</name>
+    <author>Webensol</author>
+    <license>GNU General Public License version 3</license>
+    <creationDate>2026-06-11</creationDate>
+    <version>1.0.0</version>
+    <description>Teya hosted checkout payment plugin for VirtueMart.</description>
+
+    <files>
+        <filename plugin="teya">teya.php</filename>
+        <folder>src</folder>
+        <folder>cli</folder>
+        <folder>fields</folder>
+        <folder>assets</folder>
+        <folder>language</folder>
+        <filename>index.html</filename>
+        <filename>LICENSE.txt</filename>
+    </files>
+
+    <vmconfig>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="/plugins/vmpayment/teya/fields">
+                <field name="checkConditionsCore" value="1" default="1" type="hidden"/>
+                <field name="sandbox" type="radio" default="1" label="VMPAYMENT_TEYA_MODE" description="VMPAYMENT_TEYA_MODE_DESC">
+                    <option value="0">VMPAYMENT_TEYA_LIVE</option>
+                    <option value="1">VMPAYMENT_TEYA_TEST</option>
+                </field>
+                <field name="merchant_success_email" type="text" size="80" default="" label="VMPAYMENT_TEYA_MERCHANT_SUCCESS_EMAIL" description="VMPAYMENT_TEYA_MERCHANT_SUCCESS_EMAIL_DESC"/>
+                <field name="customer_success_email" type="radio" default="0" label="VMPAYMENT_TEYA_CUSTOMER_SUCCESS_EMAIL" description="VMPAYMENT_TEYA_CUSTOMER_SUCCESS_EMAIL_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="post_success_payment" type="list" default="redirect" label="VMPAYMENT_TEYA_POST_SUCCESS_PAYMENT" description="VMPAYMENT_TEYA_POST_SUCCESS_PAYMENT_DESC">
+                    <option value="redirect">VMPAYMENT_TEYA_REDIRECT</option>
+                    <option value="show_success_page">VMPAYMENT_TEYA_SHOW_SUCCESS_PAGE</option>
+                </field>
+                <field name="total_line_item" type="radio" default="0" label="VMPAYMENT_TEYA_TOTAL_LINE_ITEM" description="VMPAYMENT_TEYA_TOTAL_LINE_ITEM_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="debug" type="radio" default="0" label="VMPAYMENT_TEYA_DEBUG" description="VMPAYMENT_TEYA_DEBUG_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field type="vmtitle" default="VMPAYMENT_TEYA_CONNECTION"/>
+                <field name="teya_connection" type="getteya" default=""/>
+                <field name="payment_currency" type="vmacceptedcurrency" default="" label="VMPAYMENT_TEYA_PAYMENT_CURRENCY" description="VMPAYMENT_TEYA_PAYMENT_CURRENCY_DESC"/>
+                <field name="status_pending" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_TEYA_STATUS_PENDING" description="VMPAYMENT_TEYA_STATUS_PENDING_DESC"/>
+                <field name="status_success" type="vmorderstate" scope="com_virtuemart" default="C" label="VMPAYMENT_TEYA_STATUS_SUCCESS" description="VMPAYMENT_TEYA_STATUS_SUCCESS_DESC"/>
+                <field name="status_failed" type="vmorderstate" scope="com_virtuemart" default="X" label="VMPAYMENT_TEYA_STATUS_FAILED" description="VMPAYMENT_TEYA_STATUS_FAILED_DESC"/>
+                <field name="status_refund" type="vmorderstate" scope="com_virtuemart" default="R" label="VMPAYMENT_TEYA_STATUS_REFUND" description="VMPAYMENT_TEYA_STATUS_REFUND_DESC"/>
+            </fieldset>
+        </fields>
+    </vmconfig>
+</extension>

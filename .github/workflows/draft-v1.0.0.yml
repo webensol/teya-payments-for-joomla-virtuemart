@@ -1,0 +1,88 @@
+name: Draft Teya Payments for VirtueMart v1.0.0
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/draft-v1.0.0.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: virtuemart-draft-v1.0.0
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    if: github.repository == 'webensol/teya-payments-for-joomla-virtuemart' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: v1.0.0
+      PACKAGE: pkg_teya_virtuemart-1.0.0.zip
+      RELEASE_TITLE: Teya Payments for VirtueMart 1.0.0
+    steps:
+      - name: Build and verify the Joomla package
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/tarball/$GITHUB_SHA" > source.tar.gz
+          mkdir source
+          tar -xzf source.tar.gz --strip-components=1 -C source
+          cd source
+          make package-virtuemart
+          python3 - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          package = Path("dist", os.environ["PACKAGE"])
+          digest = hashlib.sha256(package.read_bytes()).hexdigest()
+          update = ElementTree.parse("updates/virtuemart-1.0.0.xml").find("update")
+          assert update.findtext("sha256") == digest, "ZIP digest differs from update metadata"
+          assert update.findtext("version") == os.environ["TAG"][1:]
+          assert package.with_suffix(".zip.sha256").read_text() == f"{digest}  {package.name}\n"
+          PY
+
+      - name: Create and verify the draft release
+        working-directory: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          list_release_ids() {
+            gh api --paginate "repos/$GH_REPO/releases?per_page=100" \
+              --jq '.[] | select(.tag_name == "v1.0.0") | .id'
+          }
+          release_id="$(list_release_ids)"
+          if [[ -z "$release_id" ]]; then
+            gh release create "$TAG" --draft --target "$GITHUB_SHA" \
+              --title "$RELEASE_TITLE" --notes-file docs/RELEASE-NOTES.md \
+              "dist/$PACKAGE" "dist/$PACKAGE.sha256"
+            release_id="$(list_release_ids)"
+          fi
+          [[ "$release_id" =~ ^[0-9]+$ ]]
+          gh api "repos/$GH_REPO/releases/$release_id" > "$RUNNER_TEMP/virtuemart-release.json"
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          release = json.loads(Path(os.environ["RUNNER_TEMP"], "virtuemart-release.json").read_text())
+          assert release["draft"] is True and release["prerelease"] is False
+          assert release["tag_name"] == os.environ["TAG"]
+          assert release["target_commitish"] == os.environ["GITHUB_SHA"]
+          assert release["name"] == os.environ["RELEASE_TITLE"]
+          assert release["body"].strip() == Path("docs/RELEASE-NOTES.md").read_text().strip()
+          assets = {asset["name"]: asset for asset in release["assets"]}
+          package = os.environ["PACKAGE"]
+          assert assets.keys() == {package, package + ".sha256"}
+          for name, asset in assets.items():
+              expected = hashlib.sha256(Path("dist", name).read_bytes()).hexdigest()
+              assert asset["state"] == "uploaded" and asset["digest"] == "sha256:" + expected, name
+          print(f'Verified draft {release["id"]} and both asset digests. {release["html_url"]}')
+          PY

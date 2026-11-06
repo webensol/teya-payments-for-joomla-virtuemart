@@ -1,0 +1,264 @@
+.teya-onboarding-container {
+  max-width: 1000px;
+  margin: 20px 0;
+  color: #17212b;
+}
+
+.teya-onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #e1e5e9;
+}
+
+.teya-onboarding-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.teya-logo {
+  height: 60px;
+  width: auto;
+}
+
+.teya-onboarding-header h2 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.teya-onboarding-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.teya-onboarding-header-cards {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.teya-onboarding-header-cards img {
+  height: 30px;
+  width: auto;
+}
+
+.teya-connect-section {
+  background: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid #e1e5e9;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.teya-connect-content h3 {
+  margin-top: 0;
+  color: #1e3a8a;
+  font-size: 28px;
+  margin-bottom: 15px;
+  line-height: 1.25;
+}
+
+.teya-connect-content .description {
+  font-size: 16px;
+  color: #666;
+  margin: 0 auto 40px;
+  max-width: 600px;
+}
+
+.teya-connect-option {
+  display: none;
+}
+
+.teya-onboarding-container[data-active-mode="live"] .teya-connect-option[data-teya-mode="live"],
+.teya-onboarding-container[data-active-mode="test"] .teya-connect-option[data-teya-mode="test"] {
+  display: block;
+}
+
+.teya-connect-button-container {
+  margin: 40px 0;
+}
+
+.teya-connect-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%) !important;
+  color: #1a1a1a !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 20px 40px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  min-width: 280px;
+  text-decoration: none !important;
+  line-height: 1.2;
+}
+
+.teya-connect-button:hover,
+.teya-connect-button:focus {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  color: #1a1a1a !important;
+  text-decoration: none !important;
+}
+
+.teya-connect-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+.teya-connect-logo {
+  height: 32px;
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.teya-connect-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.teya-environment-status {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.teya-environment-status.is-connected {
+  color: #166534;
+  font-weight: 600;
+}
+
+.teya-environment-status.is-disconnected {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.teya-muted {
+  color: #666;
+  margin: 0;
+}
+
+
+.teya-disconnect-button {
+  display: block;
+  width: fit-content;
+  margin: 14px auto 0;
+  color: #b91c1c !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.teya-disconnect-button:hover,
+.teya-disconnect-button:focus {
+  color: #7f1d1d !important;
+  text-decoration: underline !important;
+}
+
+.teya-connect-info {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e5e9;
+}
+
+.teya-connect-info p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.teya-connect-info a,
+.teya-help-section a {
+  color: #1e3a8a;
+  text-decoration: none;
+}
+
+.teya-connect-info a:hover,
+.teya-connect-info a:focus,
+.teya-help-section a:hover,
+.teya-help-section a:focus {
+  text-decoration: underline;
+}
+
+.teya-help-section {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e1e5e9;
+}
+
+.teya-help-section h3 {
+  margin: 0 0 15px;
+  color: #1e3a8a;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.teya-help-section p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .teya-onboarding-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .teya-connect-section {
+    padding: 28px 20px;
+  }
+
+  .teya-connect-button {
+    width: 100%;
+    min-width: 0;
+    padding: 18px 24px !important;
+  }
+}
+
+
+.teya-poll-status {
+  min-height: 20px;
+  margin: 12px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.teya-poll-status.is-waiting {
+  color: #92400e;
+}
+
+.teya-poll-status.is-connected {
+  color: #166534;
+  font-weight: 600;
+}
+
+.teya-poll-status.is-error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.teya-disconnect-button.is-waiting {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.teya-disconnect-button { display: block; width: fit-content; margin: 14px auto 0; }
+
+.teya-connect-option[hidden], .teya-disconnect-button[hidden] { display: none !important; }
