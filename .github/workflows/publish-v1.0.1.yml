@@ -1,4 +1,4 @@
-name: Publish Teya Payments for VirtueMart v1.0.1
+name: Publish corrected Teya Payments for VirtueMart v1.0.1
 
 on:
   workflow_dispatch:
@@ -21,12 +21,15 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      RELEASE_COMMIT: 9c27169b1691e2b463167e5a971cf29946abae2b
+      RELEASE_COMMIT: 0894e534243804abbff990f74525da413e9a36bc
+      OLD_RELEASE_ID: '440052797'
+      OLD_COMMIT: 9c27169b1691e2b463167e5a971cf29946abae2b
+      OLD_SHA256: 5d1b66f988cef7ae9be25f2a0ae20f7524b59e8c79448d4cf7d503c311342b34
       TAG: v1.0.1
       PACKAGE: pkg_teya_virtuemart-1.0.1.zip
-      EXPECTED_SHA256: 5d1b66f988cef7ae9be25f2a0ae20f7524b59e8c79448d4cf7d503c311342b34
+      EXPECTED_SHA256: c02f4a4049c477b19acd287d4de15c3b749f9cef0c0290f0dd53414b00802600
     steps:
-      - name: Build and publish the verified package
+      - name: Build and replace the authorized release
         shell: bash
         run: |
           set -euo pipefail
@@ -39,8 +42,35 @@ jobs:
 
           release_id="$(gh api --paginate "repos/$GH_REPO/releases?per_page=100" \
             --jq '.[] | select(.tag_name == "v1.0.1") | .id')"
+          if [[ "$release_id" = "$OLD_RELEASE_ID" ]]; then
+            gh api "repos/$GH_REPO/releases/$release_id" > "$RUNNER_TEMP/old-release.json"
+            python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          old = json.loads(Path(os.environ["RUNNER_TEMP"], "old-release.json").read_text())
+          assert str(old["id"]) == os.environ["OLD_RELEASE_ID"]
+          assert old["tag_name"] == os.environ["TAG"] and not old["draft"]
+          assert old["target_commitish"] == os.environ["OLD_COMMIT"] and not old.get("immutable", False)
+          assets = {asset["name"]: asset for asset in old["assets"]}
+          assert assets[os.environ["PACKAGE"]]["digest"] == "sha256:" + os.environ["OLD_SHA256"]
+          PY
+            # The user explicitly authorized replacing this v1.0.1 release and tag.
+            gh api --method DELETE "repos/$GH_REPO/releases/$release_id"
+            release_id=""
+          fi
+
+          tag_commit="$(gh api "repos/$GH_REPO/git/matching-refs/tags/$TAG" \
+            --jq '.[] | select(.ref == "refs/tags/v1.0.1") | .object.sha')"
+          if [[ "$tag_commit" = "$OLD_COMMIT" ]]; then
+            gh api --method DELETE "repos/$GH_REPO/git/refs/tags/$TAG"
+          else
+            test -z "$tag_commit" || test "$tag_commit" = "$RELEASE_COMMIT"
+          fi
+
           if [[ -z "$release_id" ]]; then
-            python3 - <<'PY' > "$RUNNER_TEMP/virtuemart-create.json"
+            python3 - <<'PY' > "$RUNNER_TEMP/create-release.json"
           import json
           import os
           from pathlib import Path
@@ -55,39 +85,37 @@ jobs:
           }))
           PY
             release_id="$(gh api --method POST "repos/$GH_REPO/releases" \
-              --input "$RUNNER_TEMP/virtuemart-create.json" --jq '.id')"
+              --input "$RUNNER_TEMP/create-release.json" --jq '.id')"
           fi
           [[ "$release_id" =~ ^[0-9]+$ ]]
           endpoint="repos/$GH_REPO/releases/$release_id"
-          gh api "$endpoint" > "$RUNNER_TEMP/virtuemart-release.json"
+          gh api "$endpoint" > "$RUNNER_TEMP/replacement-release.json"
           python3 - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          release = json.loads(Path(os.environ["RUNNER_TEMP"], "virtuemart-release.json").read_text())
+          release = json.loads(Path(os.environ["RUNNER_TEMP"], "replacement-release.json").read_text())
           assert release["tag_name"] == os.environ["TAG"] and not release["prerelease"]
           assert release["target_commitish"] == os.environ["RELEASE_COMMIT"]
-          assert release["name"] == "Teya Payments for VirtueMart 1.0.1"
           assert release["body"].strip() == Path("docs/RELEASE-NOTES.md").read_text().strip()
           PY
-
           for name in "$PACKAGE" "$PACKAGE.sha256"; do
-            if ! jq -e --arg name "$name" 'any(.assets[]; .name == $name)' "$RUNNER_TEMP/virtuemart-release.json" > /dev/null; then
-              jq -e '.draft == true' "$RUNNER_TEMP/virtuemart-release.json" > /dev/null
+            if ! jq -e --arg name "$name" 'any(.assets[]; .name == $name)' "$RUNNER_TEMP/replacement-release.json" > /dev/null; then
+              jq -e '.draft == true' "$RUNNER_TEMP/replacement-release.json" > /dev/null
               gh api --method POST \
                 "https://uploads.github.com/repos/$GH_REPO/releases/$release_id/assets?name=$name" \
                 -H 'Content-Type: application/octet-stream' --input "dist/$name" > /dev/null
             fi
           done
-          gh api "$endpoint" > "$RUNNER_TEMP/virtuemart-release.json"
+          gh api "$endpoint" > "$RUNNER_TEMP/replacement-release.json"
           python3 - <<'PY'
           import hashlib
           import json
           import os
           from pathlib import Path
 
-          release = json.loads(Path(os.environ["RUNNER_TEMP"], "virtuemart-release.json").read_text())
+          release = json.loads(Path(os.environ["RUNNER_TEMP"], "replacement-release.json").read_text())
           package = Path("dist", os.environ["PACKAGE"])
           checksum = package.with_suffix(".zip.sha256")
           digest = hashlib.sha256(package.read_bytes()).hexdigest()
@@ -100,10 +128,9 @@ jobs:
               assert asset["state"] == "uploaded" and asset["size"] == path.stat().st_size
               assert asset["digest"] == "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
           PY
-          if [[ "$(jq -r .draft "$RUNNER_TEMP/virtuemart-release.json")" = true ]]; then
+          if [[ "$(jq -r .draft "$RUNNER_TEMP/replacement-release.json")" = true ]]; then
             gh api --method PATCH "$endpoint" -F draft=false -F prerelease=false -f make_latest=true \
-              --jq '{url:.html_url,tag:.tag_name,draft:.draft,prerelease:.prerelease}'
+              --jq '{id:.id,url:.html_url,tag:.tag_name,draft:.draft}'
           fi
-          gh api "$endpoint" --jq '.draft == false and .prerelease == false' | grep -qx true
           test "$(gh api "repos/$GH_REPO/git/ref/tags/$TAG" --jq '.object.sha')" = "$RELEASE_COMMIT"
           test "$(gh api "repos/$GH_REPO/releases/latest" --jq '.tag_name')" = "$TAG"
