@@ -32,7 +32,7 @@ jobs:
       - name: Build and replace the authorized release
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           gh api "repos/$GH_REPO/tarball/$RELEASE_COMMIT" > source.tar.gz
           mkdir source
           tar -xzf source.tar.gz --strip-components=1 -C source
@@ -84,8 +84,12 @@ jobs:
               "prerelease": False,
           }))
           PY
-            release_id="$(gh api --method POST "repos/$GH_REPO/releases" \
-              --input "$RUNNER_TEMP/create-release.json" --jq '.id')"
+            if ! gh api --method POST "repos/$GH_REPO/releases" \
+              --input "$RUNNER_TEMP/create-release.json" > "$RUNNER_TEMP/create-response.json"; then
+              cat "$RUNNER_TEMP/create-response.json"
+              exit 1
+            fi
+            release_id="$(jq -r .id "$RUNNER_TEMP/create-response.json")"
           fi
           [[ "$release_id" =~ ^[0-9]+$ ]]
           endpoint="repos/$GH_REPO/releases/$release_id"
