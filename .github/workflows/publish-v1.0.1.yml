@@ -32,7 +32,7 @@ jobs:
       - name: Build and replace the authorized release
         shell: bash
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           gh api "repos/$GH_REPO/tarball/$RELEASE_COMMIT" > source.tar.gz
           mkdir source
           tar -xzf source.tar.gz --strip-components=1 -C source
@@ -77,7 +77,7 @@ jobs:
 
           print(json.dumps({
               "tag_name": os.environ["TAG"],
-              "target_commitish": os.environ["RELEASE_COMMIT"],
+              "target_commitish": "main",
               "name": "Teya Payments for VirtueMart 1.0.1",
               "body": Path("docs/RELEASE-NOTES.md").read_text(),
               "draft": True,
@@ -101,7 +101,7 @@ jobs:
 
           release = json.loads(Path(os.environ["RUNNER_TEMP"], "replacement-release.json").read_text())
           assert release["tag_name"] == os.environ["TAG"] and not release["prerelease"]
-          assert release["target_commitish"] == os.environ["RELEASE_COMMIT"]
+          assert release["target_commitish"] == "main"
           assert release["body"].strip() == Path("docs/RELEASE-NOTES.md").read_text().strip()
           PY
           for name in "$PACKAGE" "$PACKAGE.sha256"; do
