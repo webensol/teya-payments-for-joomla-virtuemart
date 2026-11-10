@@ -13,6 +13,7 @@ final class TeyaVirtuemartWebhookVerifier
             throw new RuntimeException('Missing Teya signature.');
         }
         $pem = strpos($publicKey, 'BEGIN PUBLIC KEY') !== false ? $publicKey : TeyaVirtuemartUtils::derPublicKeyToPem($publicKey);
+        // Teya transports the RSA signature as Base64. openssl_verify() requires its binary bytes.
         $decodedSignature = base64_decode((string) $signature, true);
         if ($decodedSignature === false) {
             throw new RuntimeException('Invalid Teya signature encoding.');

@@ -55,12 +55,14 @@ final class TeyaVirtuemartCredentials
         $tag = '';
         $cipher = openssl_encrypt($value, 'aes-256-gcm', self::encryptionKey(), OPENSSL_RAW_DATA, $iv, $tag, $field, 16);
         if ($cipher === false) { throw new RuntimeException('Teya credential encryption failed.'); }
+        // Store the binary AES-GCM IV, authentication tag and ciphertext as Base64 text.
         return self::PREFIX . base64_encode($iv . $tag . $cipher);
     }
 
     public static function decrypt($value, $field)
     {
         if (strpos($value, self::PREFIX) !== 0) { return $value; }
+        // Decode the stored envelope before authenticating and decrypting it with AES-GCM.
         $bytes = base64_decode(substr($value, strlen(self::PREFIX)), true);
         if ($bytes === false || strlen($bytes) < 29) { throw new RuntimeException('Invalid encrypted Teya credential.'); }
         $plain = openssl_decrypt(substr($bytes, 28), 'aes-256-gcm', self::encryptionKey(), OPENSSL_RAW_DATA,

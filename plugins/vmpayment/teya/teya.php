@@ -149,7 +149,7 @@ class plgVmPaymentTeya extends vmPSPlugin
                 }
                 $environment = TeyaVirtuemartUtils::normalizeEnvironment($input->getCmd('environment'));
                 $result = $this->withConnectionLock($method, function ($fresh) use ($environment) {
-                    $this->assertNoPendingRefunds($fresh);
+                    $this->ensureNoPendingRefunds($fresh);
                     $nonce = TeyaVirtuemartOnboardingState::begin($fresh, $environment);
                     $this->savePaymentParams($fresh->virtuemart_paymentmethod_id, $fresh, $environment);
                     return array('url'=>self::registrationUrl($fresh->virtuemart_paymentmethod_id, $environment, $nonce), 'attempt'=>hash('sha256', $nonce));
@@ -313,7 +313,7 @@ class plgVmPaymentTeya extends vmPSPlugin
             return null;
         }
         try {
-            $this->assertNoPendingRefunds($method);
+            $this->ensureNoPendingRefunds($method);
             $this->disconnectPaymentMethodRegistrations($method);
         } catch (Exception $exception) {
             $do = false;
@@ -466,7 +466,7 @@ class plgVmPaymentTeya extends vmPSPlugin
         }
     }
 
-    private function assertNoPendingRefunds($method)
+    private function ensureNoPendingRefunds($method)
     {
         $db = JFactory::getDBO();
         $db->setQuery('SELECT COUNT(*) FROM '.$db->quoteName($this->_tablename)
@@ -479,7 +479,7 @@ class plgVmPaymentTeya extends vmPSPlugin
     {
         $environment = TeyaVirtuemartUtils::normalizeEnvironment($environment);
         return $this->withConnectionLock($method, function ($method) use ($environment) {
-            $this->assertNoPendingRefunds($method);
+            $this->ensureNoPendingRefunds($method);
             TeyaVirtuemartOnboardingState::invalidate($method,$environment);
             if (!TeyaVirtuemartCredentials::isConnected($method, $environment)) {
                 $this->savePaymentParams($method->virtuemart_paymentmethod_id, $method, $environment);
@@ -521,7 +521,7 @@ class plgVmPaymentTeya extends vmPSPlugin
         $nonce = $nonce ?? JFactory::getApplication()->input->getString('nonce');
         return $this->withConnectionLock($method, function ($method) use ($environment,$nonce,$raw,$payload,$client) {
             if (!TeyaVirtuemartOnboardingState::validate($method,$environment,$nonce,$raw)) { return; }
-            $this->assertNoPendingRefunds($method);
+            $this->ensureNoPendingRefunds($method);
             $prefix = $environment === TeyaVirtuemartUtils::ENV_TEST ? 'test_' : '';
             $method->{$prefix . 'client_id'} = $payload['client_id'];
             $method->{$prefix . 'client_secret'} = $payload['client_secret'];

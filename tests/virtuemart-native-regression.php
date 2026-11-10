@@ -99,14 +99,19 @@ $native=VmModel::getModel('paymentmethod'); $method=$native->getPayment(1);
 if (!TeyaVirtuemartCredentials::isConnected($method,'test')) { throw new RuntimeException('Native settings model loses stored connection'); }
 echo 'PASS: native VirtueMart model binds encrypted persisted credentials'.PHP_EOL;
 $token=\Joomla\CMS\Session\Session::getFormToken();
-$_POST=array($token=>1,'params'=>array('sandbox'=>0,'merchant_success_email'=>'')); $_REQUEST=$_POST;
+$_POST=array($token=>1,'params'=>array('sandbox'=>0,'merchant_success_email'=>'','test_client_secret'=>'FORGED','test_access_token'=>'FORGED')); $_REQUEST=$_POST;
+// Earlier extensions can populate VirtueMart's filtered request cache before this hook.
+vRequest::setVar('params', $_POST['params']);
+if (vRequest::getHtml('params', '')['test_client_secret'] !== 'FORGED') {
+ throw new RuntimeException('Native stale settings cache fixture failed');
+}
 $app->input->set('option','com_virtuemart'); $app->input->set('view','paymentmethod');
 $app->input->set('task','apply'); $app->input->set('virtuemart_paymentmethod_id',1);
 $app->input->post->set($token,1); $app->input->post->set('params',$_POST['params']);
 require_once JPATH_SITE.'/plugins/system/teyavirtuemart/teyavirtuemart.php';
 $companion=new plgSystemTeyaVirtuemart($subject,array('name'=>'teyavirtuemart','type'=>'system','params'=>'{}'));
 $companion->onAfterInitialise();
-$data=array('virtuemart_paymentmethod_id'=>1,'virtuemart_vendor_id'=>1,'payment_jplugin_id'=>$paymentExtensionId,'payment_name'=>'Isolated Teya','published'=>1,'params'=>$_POST['params']);
+$data=array('virtuemart_paymentmethod_id'=>1,'virtuemart_vendor_id'=>1,'payment_jplugin_id'=>$paymentExtensionId,'payment_name'=>'Isolated Teya','published'=>1,'params'=>vRequest::getHtml('params',''));
 $id=$native->store($data);
 if ((int)$id!==1) { throw new RuntimeException('Native settings save failed: '.json_encode($app->getMessageQueue())); }
 $db->setQuery('SELECT payment_params FROM #__virtuemart_paymentmethods WHERE virtuemart_paymentmethod_id=1');

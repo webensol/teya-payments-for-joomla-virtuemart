@@ -73,8 +73,13 @@ class plgSystemTeyaVirtuemart extends JPlugin
                     $posted[$key] = $safe->$key ?? '';
                 }
                 $input->post->set('params', $posted);
+                // VirtueMart's getPost() reads PHP POST directly. Keep its protected copy in sync.
                 $_POST['params'] = $posted;
-                $_REQUEST['params'] = $posted;
+                if (!class_exists('vRequest')) {
+                    require_once JPATH_ADMINISTRATOR . '/components/com_virtuemart/helpers/vrequest.php';
+                }
+                // setVar() also invalidates cached filtered values used by the native controller.
+                vRequest::setVar('params', $posted);
             }
             return;
         }

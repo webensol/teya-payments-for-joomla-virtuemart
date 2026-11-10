@@ -143,6 +143,7 @@ final class TeyaVirtuemartUtils
 
     public static function derPublicKeyToPem($base64DerKey)
     {
+        // Teya supplies a Base64 DER public key. PEM uses the same DER bytes in a text envelope.
         $der = base64_decode((string) $base64DerKey, true);
         if ($der === false) {
             throw new RuntimeException('Invalid base64 public key.');

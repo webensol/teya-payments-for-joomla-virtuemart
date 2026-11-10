@@ -3,6 +3,10 @@
 define('_JEXEC',1);
 define('JPATH_SITE',dirname(__DIR__));
 class JPlugin {}
+class vRequest {
+    static $params;
+    static function setVar($name, $value) { self::$params=$value; $_REQUEST[$name]=$value; }
+}
 class SessionToken { static $valid=true; static function checkToken($method) { return self::$valid; } }
 class_alias(SessionToken::class,'Joomla\CMS\Session\Session');
 class InputBag {
@@ -54,6 +58,7 @@ verify(TeyaVirtuemartCredentials::value($saved,'access_token','test')==='ORIGINA
 verify($saved->sandbox===0 && $saved->teya_onboarding===$original->teya_onboarding,'settings change preserves callback state');
 verify(strpos(json_encode($saved),'ORIGINAL_LIVE')===false && strpos(json_encode($saved),'ORIGINAL_TEST')===false,'legacy credentials encrypted on save');
 verify($_POST['params']===$input->post->values['params'],'native VM POST data uses protected credentials');
+verify(vRequest::$params===$input->post->values['params'],'VirtueMart filtered request uses protected credentials');
 SessionToken::$valid=false; rejects(fn()=>$plugin->onAfterInitialise()); SessionToken::$valid=true;
 JFactory::$user->allowed=false; rejects(fn()=>$plugin->onAfterInitialise()); JFactory::$user->allowed=true;
 JFactory::$db->pending=1;
