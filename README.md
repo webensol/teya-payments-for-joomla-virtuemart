@@ -10,7 +10,7 @@ Accept card payments in VirtueMart through Teya Hosted Checkout. Customers enter
 
 ## Installation
 
-1. Download `pkg_teya_virtuemart-1.0.0.zip` from the [GitHub releases page](https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases).
+1. Download `pkg_teya_virtuemart-1.0.1.zip` from the [GitHub releases page](https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases).
 2. In Joomla administration, open **System → Install → Extensions** and upload the package. It installs and enables the VirtueMart payment plugin and its required system companion.
 3. In **VirtueMart → Shop → Payment Methods**, create a payment method using **Teya Payments - VirtueMart** and save it.
 4. Select **Test**, click **Connect to Teya**, and complete onboarding. Confirm that the settings show the test connection.

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package    Teya Payments for VirtueMart
+ * @license    GNU General Public License version 3; see LICENSE.txt
+ */
 defined('_JEXEC') or die;
 
 /** Enable the bundled plugins after Joomla has installed both successfully. */

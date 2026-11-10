@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package    Teya Payments for VirtueMart
+ * @license    GNU General Public License version 3; see LICENSE.txt
+ */
 /** Run from the Joomla root: php plugins/vmpayment/teya/cli/refunds.php */
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);

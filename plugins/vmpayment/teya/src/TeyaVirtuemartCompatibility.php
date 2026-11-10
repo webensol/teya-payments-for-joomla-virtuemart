@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package    Teya Payments for VirtueMart
+ * @license    GNU General Public License version 3; see LICENSE.txt
+ */
 defined('_JEXEC') or die('Restricted access');
 
 // VirtueMart releases using Joomla's legacy library constant still need it on Joomla 6.

@@ -1,7 +1,7 @@
 .PHONY: package-virtuemart test-virtuemart test-virtuemart-native
 package-virtuemart:
 	python3 tools/build-packages.py
-	cd dist && sha256sum pkg_teya_virtuemart-1.0.0.zip > pkg_teya_virtuemart-1.0.0.zip.sha256
+	cd dist && sha256sum pkg_teya_virtuemart-1.0.1.zip > pkg_teya_virtuemart-1.0.1.zip.sha256
 
 test-virtuemart:
 	php tests/virtuemart-regression.php
@@ -13,4 +13,4 @@ test-virtuemart:
 	node tests/virtuemart-admin-ui-regression.cjs
 
 test-virtuemart-native: package-virtuemart
-	bash tools/run-virtuemart-native-tests.sh dist/pkg_teya_virtuemart-1.0.0.zip
+	bash tools/run-virtuemart-native-tests.sh dist/pkg_teya_virtuemart-1.0.1.zip

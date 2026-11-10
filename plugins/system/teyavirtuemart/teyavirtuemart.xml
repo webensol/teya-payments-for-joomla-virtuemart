@@ -4,7 +4,7 @@
     <author>Webensol</author>
     <license>GNU General Public License version 3</license>
     <creationDate>2026-09-26</creationDate>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <description>Disconnects Teya merchant registrations when a Teya VirtueMart payment method is deleted.</description>
     <files>
         <filename plugin="teyavirtuemart">teyavirtuemart.php</filename>

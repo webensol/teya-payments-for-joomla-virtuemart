@@ -10,7 +10,7 @@ final class TeyaVirtuemartUtils
 {
     public const ENV_LIVE = 'live';
     public const ENV_TEST = 'test';
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.0.1';
 
     private const ZERO_DECIMAL_CURRENCIES = array(
         'ISK', 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG',

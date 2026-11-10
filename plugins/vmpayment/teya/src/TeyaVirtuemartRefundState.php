@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package    Teya Payments for VirtueMart
+ * @license    GNU General Public License version 3; see LICENSE.txt
+ */
 defined('_JEXEC') or die('Restricted access');
 
 /** Durable refund ledger, stored in the existing refund response column. */
