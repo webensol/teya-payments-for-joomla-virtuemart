@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<updates />
+<updates>
+  <update>
+    <name>Teya Payments for VirtueMart</name>
+    <description>Teya Hosted Checkout and refunds for VirtueMart</description>
+    <element>pkg_teya_virtuemart</element>
+    <type>package</type>
+    <version>1.0.1</version>
+    <maintainer>Webensol</maintainer>
+    <maintainerurl>https://github.com/webensol/teya-payments-for-joomla-virtuemart</maintainerurl>
+    <php_minimum>8.2</php_minimum>
+    <sha256>c02f4a4049c477b19acd287d4de15c3b749f9cef0c0290f0dd53414b00802600</sha256>
+    <infourl title="Release notes">https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases/tag/v1.0.1</infourl>
+    <downloads>
+      <downloadurl type="full" format="zip">https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases/download/v1.0.1/pkg_teya_virtuemart-1.0.1.zip</downloadurl>
+    </downloads>
+    <targetplatform name="joomla" version="(5\.(?:[4-9]|[1-9][0-9])|6\.)" />
+    <tags>
+      <tag>stable</tag>
+    </tags>
+  </update>
+</updates>
