@@ -21,13 +21,13 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      RELEASE_COMMIT: 0894e534243804abbff990f74525da413e9a36bc
-      OLD_RELEASE_ID: '440052797'
-      OLD_COMMIT: 9c27169b1691e2b463167e5a971cf29946abae2b
-      OLD_SHA256: 5d1b66f988cef7ae9be25f2a0ae20f7524b59e8c79448d4cf7d503c311342b34
+      RELEASE_COMMIT: 4354e015217fe96f5904fcd2936c13e6658a36a5
+      OLD_RELEASE_ID: '440100478'
+      OLD_COMMIT: 0894e534243804abbff990f74525da413e9a36bc
+      OLD_SHA256: c02f4a4049c477b19acd287d4de15c3b749f9cef0c0290f0dd53414b00802600
       TAG: v1.0.1
       PACKAGE: pkg_teya_virtuemart-1.0.1.zip
-      EXPECTED_SHA256: c02f4a4049c477b19acd287d4de15c3b749f9cef0c0290f0dd53414b00802600
+      EXPECTED_SHA256: 7da4e39a3b92ee639021874bab61c291922bb74ce1451e881a084c5a213039a8
     steps:
       - name: Build and replace the authorized release
         shell: bash
@@ -52,7 +52,7 @@ jobs:
           old = json.loads(Path(os.environ["RUNNER_TEMP"], "old-release.json").read_text())
           assert str(old["id"]) == os.environ["OLD_RELEASE_ID"]
           assert old["tag_name"] == os.environ["TAG"] and not old["draft"]
-          assert old["target_commitish"] == os.environ["OLD_COMMIT"] and not old.get("immutable", False)
+          assert old["target_commitish"] == "main" and not old.get("immutable", False)
           assets = {asset["name"]: asset for asset in old["assets"]}
           assert assets[os.environ["PACKAGE"]]["digest"] == "sha256:" + os.environ["OLD_SHA256"]
           PY
