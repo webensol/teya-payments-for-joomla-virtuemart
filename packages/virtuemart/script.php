@@ -16,9 +16,10 @@ class pkg_teya_virtuemartInstallerScript
         if (!is_file(JPATH_ADMINISTRATOR . '/components/com_virtuemart/helpers/config.php')) {
             throw new RuntimeException('Install VirtueMart before installing Teya Payments.');
         }
-        if (!extension_loaded('openssl') || !function_exists('hash_hkdf')
+        if (!class_exists(\ParagonIE\ConstantTime\Base64::class)
+            || !extension_loaded('openssl') || !function_exists('hash_hkdf')
             || (!function_exists('curl_init') && !ini_get('allow_url_fopen'))) {
-            throw new RuntimeException('Teya Payments requires OpenSSL and an HTTPS transport.');
+            throw new RuntimeException('Teya Payments requires Joomla’s bundled encoding library, OpenSSL and an HTTPS transport.');
         }
         return true;
     }

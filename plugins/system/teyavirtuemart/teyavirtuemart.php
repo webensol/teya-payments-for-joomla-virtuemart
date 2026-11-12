@@ -67,14 +67,15 @@ class plgSystemTeyaVirtuemart extends JPlugin
             }
             $method = $this->loadTeyaPaymentMethod($id);
             if ($method) {
-                $posted = $input->post->get('params', array(), 'array');
+                $posted = $input->post->get('params', null, 'array');
+                if (!is_array($posted)) {
+                    throw new RuntimeException('Payment settings must be submitted as an array.', 400);
+                }
                 $safe = TeyaVirtuemartCredentials::protect($method);
                 foreach (TeyaVirtuemartCredentials::protectedKeys() as $key) {
                     $posted[$key] = $safe->$key ?? '';
                 }
                 $input->post->set('params', $posted);
-                // VirtueMart's getPost() reads PHP POST directly. Keep its protected copy in sync.
-                $_POST['params'] = $posted;
                 if (!class_exists('vRequest')) {
                     require_once JPATH_ADMINISTRATOR . '/components/com_virtuemart/helpers/vrequest.php';
                 }

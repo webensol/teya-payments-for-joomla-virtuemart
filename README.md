@@ -37,7 +37,7 @@ Upload the complete package when upgrading manually. Joomla’s extension update
 
 Include your Joomla, VirtueMart and PHP versions when reporting an issue. Remove credentials, tokens and customer data from examples. [GitHub issues](https://github.com/webensol/teya-payments-for-joomla-virtuemart/issues)
 
-Run `make package-virtuemart` with Python 3.9 or later to build the ZIP and SHA-256 checksum in `dist/`. Run `make test-virtuemart` with PHP and Node.js for the offline regression suite.
+Run `make package-virtuemart` with Python 3.9 or later to build the ZIP and SHA-256 checksum in `dist/`. Run `composer install` to install the test dependencies, then `make test-virtuemart` with PHP and Node.js for the offline regression suite. The installed plugin uses Joomla’s bundled ParagonIE encoding library.
 
 The native tests also require Docker, a local Joomla/PHP image and a Joomla/VirtueMart test site file tree. Set `TEYA_VM_JOOMLA_ROOT` to the test site files and `TEYA_VM_PHP_IMAGE` to the local image, then run `make test-virtuemart-native`. The runner uses a disposable MariaDB 11.4 database and simulated Teya responses.
 

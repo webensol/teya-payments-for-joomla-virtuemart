@@ -1,4 +1,5 @@
 <?php
+require dirname(__DIR__) . '/vendor/autoload.php';
 // Offline regression tests: no merchant credentials or external payment calls.
 define('_JEXEC', 1);
 set_error_handler(function ($severity, $message, $file, $line) { if (error_reporting() & $severity) { throw new ErrorException($message, 0, $severity, $file, $line); } return false; });
@@ -208,6 +209,14 @@ $public = openssl_pkey_get_details($key)['key'];
 openssl_sign('payload', $sig, $key, OPENSSL_ALGO_SHA256);
 TeyaVirtuemartWebhookVerifier::verify('payload', base64_encode($sig), $public);
 check(true, 'RSA signature verified');
+TeyaVirtuemartWebhookVerifier::verify('payload', rtrim(base64_encode($sig), '='), $public);
+check(true, 'unpadded RSA signature remains supported');
+TeyaVirtuemartWebhookVerifier::verify('payload', chunk_split(base64_encode($sig), 48), $public);
+check(true, 'wrapped RSA signature remains supported');
+$derText = preg_replace('/-----[^-]+-----|\s+/', '', $public);
+check(TeyaVirtuemartUtils::derPublicKeyToPem($derText) === $public, 'DER public key produces the same PEM');
+rejects(fn() => TeyaVirtuemartWebhookVerifier::verify('payload', '%%%invalid%%%', $public), 'invalid signature encoding rejected');
+
 rejects(fn() => TeyaVirtuemartWebhookVerifier::verify('tampered', base64_encode($sig), $public), 'tampered webhook rejected');
 // Reproduce the pre-existing configuration serialization failure using dummy data.
 $pem = "-----BEGIN PUBLIC KEY-----\nDUMMY\n-----END PUBLIC KEY-----\n";
@@ -410,6 +419,33 @@ check(TeyaVirtuemartCredentials::value($protected,'client_secret','live')==='ENC
 check(TeyaVirtuemartCredentials::value($protected,'access_token','test')==='TOKEN_SECRET','VM encrypted token readable');
 rejects(function () use ($protected) { TeyaVirtuemartCredentials::decrypt($protected->client_secret,'test_client_secret'); },'VM ciphertext bound to field');
 
+
+
+// Existing encrypted credentials retain the same envelope, key derivation and field binding.
+$legacyField = 'test_client_secret';
+$legacyPlain = 'legacy-credential-' . str_repeat('x', 30);
+$legacyIv = str_repeat("\x01", 12);
+$legacyTag = '';
+$legacyKey = hash_hkdf('sha256', 'offline-vm-site-secret-for-tests', 32, 'teya-virtuemart-credentials-v1');
+$legacyCipher = openssl_encrypt($legacyPlain, 'aes-256-gcm', $legacyKey, OPENSSL_RAW_DATA, $legacyIv, $legacyTag, $legacyField, 16);
+$legacyEnvelope = 'teya:v1:' . base64_encode($legacyIv . $legacyTag . $legacyCipher);
+check(TeyaVirtuemartCredentials::decrypt($legacyEnvelope, $legacyField) === $legacyPlain, 'existing credential envelope remains readable');
+check(TeyaVirtuemartCredentials::encrypt($legacyEnvelope, $legacyField) === $legacyEnvelope, 'saving an existing envelope preserves it');
+$newEnvelope = TeyaVirtuemartCredentials::encrypt($legacyPlain, $legacyField);
+$newBytes = base64_decode(substr($newEnvelope, strlen('teya:v1:')), true);
+$oldReader = openssl_decrypt(substr($newBytes, 28), 'aes-256-gcm', $legacyKey, OPENSSL_RAW_DATA, substr($newBytes, 0, 12), substr($newBytes, 12, 16), $legacyField);
+check($oldReader === $legacyPlain, 'new credentials remain compatible with the original reader');
+rejects(fn() => TeyaVirtuemartCredentials::decrypt('teya:v1:%%%invalid%%%', $legacyField), 'malformed encrypted envelope rejected');
+
+foreach (array('', 'a', 'ab', 'abc', 'abcd', random_bytes(32), implode('', array_map('chr', range(0, 255)))) as $binary) {
+    $encoded = ParagonIE\ConstantTime\Base64::encode($binary);
+    check($encoded === base64_encode($binary), 'encoding matches existing persisted representation');
+    check(TeyaVirtuemartUtils::decodeBase64($encoded) === $binary, 'encoded data round trip');
+    check(TeyaVirtuemartUtils::decodeBase64(rtrim($encoded, '=')) === $binary, 'unpadded data round trip');
+}
+foreach (array('A', 'A===', 'abc!', '=YQ==', 'YQ===') as $invalid) {
+    check(TeyaVirtuemartUtils::decodeBase64($invalid) === false, 'malformed encoding rejected');
+}
 
 foreach (array($plugin,$companion) as $target) {
     $testMethod=(object) array('client_secret'=>'DB_SECRET','access_token'=>'DB_TOKEN','access_token_expires_at'=>time()+1000);

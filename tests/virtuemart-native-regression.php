@@ -111,6 +111,14 @@ $app->input->post->set($token,1); $app->input->post->set('params',$_POST['params
 require_once JPATH_SITE.'/plugins/system/teyavirtuemart/teyavirtuemart.php';
 $companion=new plgSystemTeyaVirtuemart($subject,array('name'=>'teyavirtuemart','type'=>'system','params'=>'{}'));
 $companion->onAfterInitialise();
+if (vRequest::getPost()['params']['test_client_secret'] !== 'FORGED') {
+ throw new RuntimeException('Native save unexpectedly rewrote PHP POST');
+}
+$controllerParams = vRequest::getHtml('params', '');
+if (TeyaVirtuemartCredentials::value((object)$controllerParams,'client_secret','test') !== 'ISOLATED_SECRET') {
+ throw new RuntimeException('Native controller did not receive protected settings');
+}
+
 $data=array('virtuemart_paymentmethod_id'=>1,'virtuemart_vendor_id'=>1,'payment_jplugin_id'=>$paymentExtensionId,'payment_name'=>'Isolated Teya','published'=>1,'params'=>vRequest::getHtml('params',''));
 $id=$native->store($data);
 if ((int)$id!==1) { throw new RuntimeException('Native settings save failed: '.json_encode($app->getMessageQueue())); }

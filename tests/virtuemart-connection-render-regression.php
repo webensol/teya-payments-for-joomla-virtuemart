@@ -1,4 +1,5 @@
 <?php
+require dirname(__DIR__) . '/vendor/autoload.php';
 // Execute the real settings field and renderer against stored encrypted parameters.
 define('_JEXEC', 1);
 define('JPATH_SITE', dirname(__DIR__));

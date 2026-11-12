@@ -1,4 +1,5 @@
 <?php
+require dirname(__DIR__) . '/vendor/autoload.php';
 // Exercise the companion's actual native settings save guard without Joomla or a network.
 define('_JEXEC',1);
 define('JPATH_SITE',dirname(__DIR__));
@@ -57,8 +58,11 @@ verify(TeyaVirtuemartCredentials::value($saved,'client_secret','live')==='ORIGIN
 verify(TeyaVirtuemartCredentials::value($saved,'access_token','test')==='ORIGINAL_TEST','separate environment preserved');
 verify($saved->sandbox===0 && $saved->teya_onboarding===$original->teya_onboarding,'settings change preserves callback state');
 verify(strpos(json_encode($saved),'ORIGINAL_LIVE')===false && strpos(json_encode($saved),'ORIGINAL_TEST')===false,'legacy credentials encrypted on save');
-verify($_POST['params']===$input->post->values['params'],'native VM POST data uses protected credentials');
+
 verify(vRequest::$params===$input->post->values['params'],'VirtueMart filtered request uses protected credentials');
+unset($input->post->values['params']);
+rejects(fn()=>$plugin->onAfterInitialise());
+$input->post->values['params']=(array)$saved;
 SessionToken::$valid=false; rejects(fn()=>$plugin->onAfterInitialise()); SessionToken::$valid=true;
 JFactory::$user->allowed=false; rejects(fn()=>$plugin->onAfterInitialise()); JFactory::$user->allowed=true;
 JFactory::$db->pending=1;

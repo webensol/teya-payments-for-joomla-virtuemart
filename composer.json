@@ -1,0 +1,12 @@
+{
+    "name": "webensol/teya-payments-for-joomla-virtuemart",
+    "description": "Development dependencies for the Teya VirtueMart regression tests",
+    "type": "project",
+    "license": "GPL-3.0-only",
+    "require-dev": {
+        "paragonie/constant_time_encoding": "^3.0"
+    },
+    "config": {
+        "allow-plugins": false
+    }
+}

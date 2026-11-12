@@ -6,6 +6,8 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
+use ParagonIE\ConstantTime\Base64;
+
 final class TeyaVirtuemartUtils
 {
     public const ENV_LIVE = 'live';
@@ -141,14 +143,27 @@ final class TeyaVirtuemartUtils
         return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
     }
 
+    public static function decodeBase64($value)
+    {
+        // Preserve support for wrapped keys and signatures with omitted padding.
+        $encoded = preg_replace('/\s+/', '', (string) $value);
+        $paddedLength = intdiv(strlen($encoded) + 3, 4) * 4;
+        $encoded = str_pad($encoded, $paddedLength, '=');
+        try {
+            return Base64::decode($encoded, true);
+        } catch (RangeException $exception) {
+            return false;
+        }
+    }
+
     public static function derPublicKeyToPem($base64DerKey)
     {
         // Teya supplies a Base64 DER public key. PEM uses the same DER bytes in a text envelope.
-        $der = base64_decode((string) $base64DerKey, true);
+        $der = self::decodeBase64($base64DerKey);
         if ($der === false) {
             throw new RuntimeException('Invalid base64 public key.');
         }
-        return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($der), 64, "\n") . "-----END PUBLIC KEY-----\n";
+        return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(Base64::encode($der), 64, "\n") . "-----END PUBLIC KEY-----\n";
     }
 
     public static function redact(array $data)
