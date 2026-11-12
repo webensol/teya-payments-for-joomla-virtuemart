@@ -10,6 +10,13 @@ if [[ -n "$package_path" ]]; then
   [[ -f "$package_path" && "$package_path" == *.zip ]] || { echo 'Provide an existing Joomla package ZIP' >&2; exit 1; }
   package_mount=(--mount "type=bind,src=$package_path,dst=/audit-release.zip,readonly" -e TEYA_AUDIT_PACKAGE=/audit-release.zip)
 fi
+previous_package_path="${2:-}"
+if [[ -n "$previous_package_path" ]]; then
+  [[ -n "$package_path" ]] || { echo 'Provide the target ZIP before the previous-version ZIP' >&2; exit 1; }
+  previous_package_path="$(realpath "$previous_package_path")"
+  [[ -f "$previous_package_path" && "$previous_package_path" == *.zip ]] || { echo 'Provide an existing previous-version ZIP' >&2; exit 1; }
+  package_mount+=(--mount "type=bind,src=$previous_package_path,dst=/audit-previous-release.zip,readonly" -e TEYA_AUDIT_PREVIOUS_PACKAGE=/audit-previous-release.zip)
+fi
 run_id="teya-vm-audit-$$"
 network_name="$run_id"
 db_name="$run_id-db"

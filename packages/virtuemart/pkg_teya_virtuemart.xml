@@ -2,8 +2,8 @@
 <extension type="package" method="upgrade" version="4.0">
     <name>Teya Payments for VirtueMart</name>
     <packagename>teya_virtuemart</packagename>
-    <version>1.0.1</version>
-    <creationDate>2026-09-28</creationDate>
+    <version>1.0.2</version>
+    <creationDate>2026-11-12</creationDate>
     <author>Webensol</author>
     <license>GNU General Public License version 3</license>
     <description>Installs the Teya payment gateway and its required companion plugin for VirtueMart.</description>

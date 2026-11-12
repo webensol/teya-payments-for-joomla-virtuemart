@@ -10,7 +10,7 @@ Accept card payments in VirtueMart through Teya Hosted Checkout. Customers enter
 
 ## Installation
 
-1. Download `pkg_teya_virtuemart-1.0.1.zip` from the [GitHub releases page](https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases).
+1. Download `pkg_teya_virtuemart-1.0.2.zip` from the [GitHub releases page](https://github.com/webensol/teya-payments-for-joomla-virtuemart/releases).
 2. In Joomla administration, open **System → Install → Extensions** and upload the package. It installs and enables the VirtueMart payment plugin and its required system companion.
 3. In **VirtueMart → Shop → Payment Methods**, create a payment method using **Teya Payments - VirtueMart** and save it.
 4. Select **Test**, click **Connect to Teya**, and complete onboarding. Confirm that the settings show the test connection.
@@ -39,6 +39,6 @@ Include your Joomla, VirtueMart and PHP versions when reporting an issue. Remove
 
 Run `make package-virtuemart` with Python 3.9 or later to build the ZIP and SHA-256 checksum in `dist/`. Run `composer install` to install the test dependencies, then `make test-virtuemart` with PHP and Node.js for the offline regression suite. The installed plugin uses Joomla’s bundled ParagonIE encoding library.
 
-The native tests also require Docker, a local Joomla/PHP image and a Joomla/VirtueMart test site file tree. Set `TEYA_VM_JOOMLA_ROOT` to the test site files and `TEYA_VM_PHP_IMAGE` to the local image, then run `make test-virtuemart-native`. The runner uses a disposable MariaDB 11.4 database and simulated Teya responses.
+The native tests also require Docker, a local Joomla/PHP image and a Joomla/VirtueMart test site file tree. Set `TEYA_VM_JOOMLA_ROOT` to the test site files and `TEYA_VM_PHP_IMAGE` to the local image, then run `make test-virtuemart-native`. The runner uses a disposable MariaDB 11.4 database and simulated Teya responses. To test an upgrade from a previous package, run `bash tools/run-virtuemart-native-tests.sh dist/pkg_teya_virtuemart-1.0.2.zip path/to/previous-package.zip` with the same environment variables.
 
 Developed by Webensol and distributed under the [GNU General Public License v3](LICENSE.txt). The extension is free to download. Teya’s payment service terms apply.

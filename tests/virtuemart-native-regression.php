@@ -41,7 +41,8 @@ $paymentExtensionId = 20000;
 if ($packagePath) {
  $app->loadDocument();
  $app->createExtensionNamespaceMap();
- $unpacked = \Joomla\CMS\Installer\InstallerHelper::unpack($packagePath);
+ $previousPackagePath = getenv('TEYA_AUDIT_PREVIOUS_PACKAGE');
+ $unpacked = \Joomla\CMS\Installer\InstallerHelper::unpack($previousPackagePath ?: $packagePath);
  if (empty($unpacked['dir'])) { throw new RuntimeException('VirtueMart package extraction failed'); }
  $installer = new \Joomla\CMS\Installer\Installer();
  $installer->setDatabase($container->get(\Joomla\Database\DatabaseInterface::class));
@@ -273,17 +274,9 @@ exec($command.' 2>&1',$cliOutput,$cliExit);
 nativeCheck($cliExit===0 && strpos(implode(' ',$cliOutput),'bootstrap OK')!==false,'Native CLI recovery bootstrap failed: '.implode(' ',$cliOutput));
 echo 'PASS: native CLI refund recovery --check'.PHP_EOL;
 if ($packagePath) {
- $db->setQuery('SELECT payment_params FROM #__virtuemart_paymentmethods WHERE virtuemart_paymentmethod_id=1'); $previousParams=$db->loadResult();
- $db->setQuery('SELECT teya_refund_response FROM #__virtuemart_payment_plg_teya WHERE virtuemart_order_id=11'); $previousRefund=$db->loadResult();
- $upgrade = new \Joomla\CMS\Installer\Installer();
- $upgrade->setDatabase($container->get(\Joomla\Database\DatabaseInterface::class));
- nativeCheck($upgrade->install($unpacked['dir']), 'Native package upgrade failed: '.json_encode($app->getMessageQueue()));
- $db->setQuery('SELECT payment_params FROM #__virtuemart_paymentmethods WHERE virtuemart_paymentmethod_id=1');
- nativeCheck($db->loadResult()===$previousParams,'Native ZIP upgrade changed payment method settings');
- $db->setQuery('SELECT teya_refund_response FROM #__virtuemart_payment_plg_teya WHERE virtuemart_order_id=11');
- nativeCheck($db->loadResult()===$previousRefund,'Native ZIP upgrade changed the refund ledger');
- $db->setQuery("SELECT COUNT(*) FROM #__extensions WHERE type='package' AND element='pkg_teya_virtuemart'");
- nativeCheck((int)$db->loadResult()===1,'Native upgrade duplicated the package extension');
- echo 'PASS: native ZIP upgrade preserves encrypted settings and order/refund data'.PHP_EOL;
+ $upgradeCommand=escapeshellarg(PHP_BINARY).' '.escapeshellarg('/audit-tests/virtuemart-native-upgrade.php');
+ exec($upgradeCommand.' 2>&1',$upgradeOutput,$upgradeExit);
+ nativeCheck($upgradeExit===0,'Native upgrade subprocess failed: '.implode(' ', $upgradeOutput));
+ echo implode(PHP_EOL,$upgradeOutput).PHP_EOL;
 }
 $nativeCompleted=true;

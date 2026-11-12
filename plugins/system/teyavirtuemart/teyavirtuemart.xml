@@ -3,8 +3,8 @@
     <name>Teya Payments - VirtueMart Delete Sync</name>
     <author>Webensol</author>
     <license>GNU General Public License version 3</license>
-    <creationDate>2026-09-26</creationDate>
-    <version>1.0.1</version>
+    <creationDate>2026-11-12</creationDate>
+    <version>1.0.2</version>
     <description>Disconnects Teya merchant registrations when a Teya VirtueMart payment method is deleted.</description>
     <files>
         <filename plugin="teyavirtuemart">teyavirtuemart.php</filename>

@@ -1,11 +1,19 @@
-Teya Payments for VirtueMart 1.0.1 includes the GPL v3 notices requested during JED review and the corrected administrator settings save.
+Teya Payments for VirtueMart 1.0.2 improves administrator settings saves and completes the changes requested during Joomla Extensions Directory review.
 
-The payment method save updates VirtueMart’s request cache with the server-protected credentials and onboarding state. It uses the native request API and validates the submitted settings array.
+## Changes
 
-Credential and webhook encoding now use the ParagonIE library bundled with Joomla. Existing encrypted credentials retain the same format, encryption algorithm and field binding.
+- Protected credentials and onboarding state are preserved through VirtueMart’s native request API when a payment method is saved. Cached request values are refreshed before the controller stores the settings.
+- Credential, public-key and signature encoding use the ParagonIE library bundled with Joomla. Existing AES-256-GCM credential envelopes retain the same format and field binding.
+- PHP files include GNU GPL v3 notices. JED Checker 2.4.4 reports zero errors and zero warnings. Separate framework compatibility notices remain for legacy Joomla interfaces used by VirtueMart.
 
-JED Checker 2.4.4 reports zero errors and zero warnings. Installation, upgrade, settings preservation, payment and refund tests passed on Joomla 5.4.8 and 6.1.0 with VirtueMart 4.6.4.
+## Installation and upgrade
 
-This package replaces the earlier v1.0.1 download. Sites with v1.0.1 already installed should upload the replacement ZIP through Joomla’s extension installer.
+Upload `pkg_teya_virtuemart-1.0.2.zip` through Joomla’s extension installer, or install the update offered by Joomla. The package installs or upgrades the payment plugin and its required system companion. The accompanying SHA-256 file verifies the download.
 
-Upload `pkg_teya_virtuemart-1.0.1.zip` to install or upgrade the payment plugin and its required system companion. The accompanying SHA-256 file verifies the package.
+Requirements are Joomla 5.4 or 6.x with VirtueMart installed, PHP 8.2 or later subject to Joomla’s requirements, OpenSSL, an HTTPS transport, a publicly accessible HTTPS shop, and an eligible Teya merchant account.
+
+## Verification
+
+Fresh installations and upgrades from 1.0.1 passed on Joomla 5.4.8 and 6.1.0 with VirtueMart 4.6.4, preserving credentials and refund data. The automated suite includes 170 payment and security checks, native settings saves, signed payment notifications, duplicate handling, partial/full refunds, and CLI recovery. Automated payment and refund checks use simulated Teya responses.
+
+Developed by Webensol and distributed under GNU GPL v3.

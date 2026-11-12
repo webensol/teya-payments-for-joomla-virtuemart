@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 set_error_handler(function ($severity, $message, $file, $line) { throw new ErrorException($message, 0, $severity, $file, $line); });
 class TeyaVirtuemartUtils {
-    public const VERSION = '1.0.1';
+    public const VERSION = '1.0.2';
     public static $base;
     public static function apiBaseUrl($environment) { return self::$base; }
     public static function identityTokenUrl($environment) { return self::$base . '/oauth/token'; }
@@ -67,7 +67,7 @@ try {
     transportCheck($refund['_http_status'] === 201 && $refund['seen']['body'] === $payload, 'Refund body and status: HTTP '.($refund['_http_status'] ?? 0).'; body matches='.(int)(($refund['seen']['body'] ?? null)===$payload));
     $sent = $refund['seen']['headers'];
     transportCheck($sent['authorization'] === 'Bearer FIXTURE_TOKEN' && $sent['idempotency-key'] === 'fixture-refund-key', 'Authentication/idempotency headers');
-    transportCheck($sent['user-agent'] === 'Teya-VirtueMart/1.0.1' && $sent['content-type'] === 'application/json', 'User-Agent and JSON headers');
+    transportCheck($sent['user-agent'] === 'Teya-VirtueMart/1.0.2' && $sent['content-type'] === 'application/json', 'User-Agent and JSON headers');
     try { $api->createRefund(array('transaction_id'=>'denied'), 'FIXTURE_TOKEN', 'test', 'denied-refund-key'); throw new LogicException('403 accepted'); }
     catch (TeyaVirtuemartApiException $exception) {
         transportCheck($exception->getStatusCode() === 403 && $exception->getMessage() === TeyaVirtuemartLanguage::text('API_ERROR', 403), 'Safe localized API error');
